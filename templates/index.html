@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fashion Recommender</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --cream: #f5efe6;
+        --dark: #1c1a17;
+        --accent: #c8a96e;
+        --muted: #9e9185;
+        --card-bg: #faf7f3;
+        --mannequin-body: #d4c4b0;
+        --mannequin-shadow: #b8a898;
+        --mannequin-dark: #a08878;
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--cream);
+        color: var(--dark);
+        min-height: 100vh;
+      }
+
+      header {
+        background: var(--dark);
+        color: white;
+        padding: 28px 48px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      header h1 {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 2rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+
+      header p {
+        color: var(--accent);
+        font-size: 0.8rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 4px;
+        font-weight: 300;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 48px auto;
+        padding: 0 24px;
+      }
+
+      /* ── Upload Zone ── */
+      .upload-box {
+        background: white;
+        border: 1.5px dashed #c8b9a8;
+        border-radius: 20px;
+        padding: 48px 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .upload-box:hover {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(200, 169, 110, 0.08);
+      }
+      .upload-box input {
+        display: none;
+      }
+      .upload-box label {
+        cursor: pointer;
+      }
+      .upload-box .icon {
+        font-size: 2.6rem;
+      }
+      .upload-box .label-main {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.25rem;
+        margin-top: 14px;
+        color: var(--dark);
+      }
+      .upload-box .label-sub {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 6px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      /* ── Preview ── */
+      #preview-section {
+        margin-top: 28px;
+        text-align: center;
+        display: none;
+      }
+      #preview {
+        max-height: 180px;
+        border-radius: 14px;
+        border: 1.5px solid #e0d5c8;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+      }
+
+      #search-btn {
+        margin-top: 18px;
+        background: var(--dark);
+        color: var(--accent);
+        border: none;
+        padding: 12px 36px;
+        border-radius: 50px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+      }
+      #search-btn:hover {
+        background: #2e2a24;
+      }
+      #search-btn:active {
+        transform: scale(0.98);
+      }
+      #search-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ── Loading ── */
+      #loading {
+        text-align: center;
+        margin-top: 36px;
+        display: none;
+        color: var(--muted);
+        font-size: 0.85rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .dot-pulse::after {
+        content: "";
+        animation: dots 1.4s infinite;
+      }
+      @keyframes dots {
+        0% {
+          content: ".";
+        }
+        33% {
+          content: "..";
+        }
+        66% {
+          content: "...";
+        }
+        100% {
+          content: ".";
+        }
+      }
+
+      /* ── Results ── */
+      #results {
+        margin-top: 48px;
+      }
+
+      #results-title {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 28px;
+        letter-spacing: 0.03em;
+        display: none;
+      }
+      #results-title span {
+        color: var(--accent);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 18px;
+      }
+
+      /* ── Mannequin Card ── */
+      .card {
+        background: var(--card-bg);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+        transition: transform 0.22s, box-shadow 0.22s;
+        border: 1px solid rgba(200, 185, 168, 0.3);
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .mannequin-wrap {
+        background: linear-gradient(160deg, #f0e8dc 0%, #e8ddd2 100%);
+        padding: 20px 12px 8px;
+        position: relative;
+        overflow: hidden;
+      }
+      /* subtle background texture */
+      .mannequin-wrap::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 50% 30%,
+          rgba(255, 255, 255, 0.35) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+
+      .mannequin-container {
+        position: relative;
+        width: 120px;
+        margin: 0 auto;
+      }
+
+      .mannequin-svg {
+        width: 100%;
+        display: block;
+        filter: drop-shadow(2px 4px 6px rgba(100, 80, 60, 0.18));
+      }
+
+      /* The clothing image sits exactly over the torso/hip area */
+      .clothing-on-mannequin {
+        position: absolute;
+        top: 18%; /* start at upper torso */
+        left: 5%;
+        width: 90%;
+        height: 55%; /* covers torso + hips */
+        object-fit: contain;
+        mix-blend-mode: multiply; /* white bg disappears, fabric shows through */
+        opacity: 0.88;
+        image-rendering: pixelated; /* keeps Fashion MNIST crisp instead of blurry */
+      }
+
+      .card-info {
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .card-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+      }
+      .card-score {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--accent);
+      }
+
+      /* ── Score bar ── */
+      .score-bar-wrap {
+        padding: 0 14px 12px;
+      }
+      .score-bar-bg {
+        height: 3px;
+        background: #e0d5c8;
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .score-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), #e8c080);
+        border-radius: 99px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @media (max-width: 800px) {
+        .grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (max-width: 520px) {
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        header {
+          padding: 20px 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>✦ Atelier Finder</h1>
+        <p>Visual similarity search · Fashion dataset</p>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="upload-box">
+        <label for="file-input">
+          <div class="icon">🪡</div>
+          <p class="label-main">Drop a clothing image here</p>
+          <p class="label-sub">JPG or PNG · Click to browse</p>
+        </label>
+        <input type="file" id="file-input" accept="image/*" />
+      </div>
+
+      <div id="preview-section">
+        <img id="preview" src="" alt="Preview" />
+        <br />
+        <button id="search-btn">Find Similar Pieces</button>
+      </div>
+
+      <div id="loading">
+        <span class="dot-pulse">Analysing &amp; matching</span>
+      </div>
+
+      <div id="results">
+        <div id="results-title"></div>
+        <div class="grid" id="results-grid"></div>
+      </div>
+    </div>
+
+    <script>
+      const fileInput = document.getElementById("file-input");
+      const preview = document.getElementById("preview");
+      const previewSection = document.getElementById("preview-section");
+      const searchBtn = document.getElementById("search-btn");
+      const loading = document.getElementById("loading");
+      const grid = document.getElementById("results-grid");
+      const resultsTitle = document.getElementById("results-title");
+
+      // Mannequin SVG — dress-form shape
+      function mannequinSVG() {
+        return `<svg class="mannequin-svg" viewBox="0 0 140 290" xmlns="http://www.w3.org/2000/svg">
+          <!-- hanger hook -->
+          <path d="M70 4 Q70 0 76 0 Q84 0 84 8 Q84 14 70 18" stroke="#a08878" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <!-- hanger bar -->
+          <line x1="20" y1="32" x2="120" y2="32" stroke="#b09080" stroke-width="3" stroke-linecap="round"/>
+          <!-- neck strap left -->
+          <line x1="20" y1="32" x2="44" y2="52" stroke="#b09080" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- neck strap right -->
+          <line x1="120" y1="32" x2="96" y2="52" stroke="#b09080" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- torso -->
+          <path d="
+            M44 52
+            Q30 56 26 80
+            Q22 108 26 132
+            Q34 148 70 150
+            Q106 148 114 132
+            Q118 108 114 80
+            Q110 56 96 52
+            Q84 46 70 46
+            Q56 46 44 52Z
+          " fill="var(--mannequin-body)"/>
+          <!-- chest highlight -->
+          <ellipse cx="70" cy="82" rx="22" ry="14" fill="rgba(255,255,255,0.12)"/>
+          <!-- waist -->
+          <path d="
+            M26 132
+            Q22 155 24 178
+            Q38 192 70 193
+            Q102 192 116 178
+            Q118 155 114 132
+            Q106 148 70 150
+            Q34 148 26 132Z
+          " fill="var(--mannequin-shadow)"/>
+          <!-- hip flare -->
+          <path d="
+            M24 178
+            Q18 198 20 215
+            Q36 228 70 229
+            Q104 228 120 215
+            Q122 198 116 178
+            Q102 192 70 193
+            Q38 192 24 178Z
+          " fill="var(--mannequin-dark)"/>
+          <!-- left leg -->
+          <path d="M20 215 Q14 252 16 283 L44 283 L50 215Z" fill="var(--mannequin-dark)" rx="4"/>
+          <!-- right leg -->
+          <path d="M120 215 Q126 252 124 283 L96 283 L90 215Z" fill="var(--mannequin-dark)"/>
+          <!-- base platform -->
+          <rect x="8" y="281" width="124" height="7" rx="3.5" fill="#8a7060"/>
+        </svg>`;
+      }
+
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        preview.src = URL.createObjectURL(file);
+        previewSection.style.display = "block";
+        grid.innerHTML = "";
+        resultsTitle.style.display = "none";
+      });
+
+      searchBtn.addEventListener("click", async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        loading.style.display = "block";
+        grid.innerHTML = "";
+        resultsTitle.style.display = "none";
+        searchBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+          const res = await fetch("/recommend", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+
+          resultsTitle.innerHTML = `Top <span>${data.results.length}</span> Recommendations`;
+          resultsTitle.style.display = "block";
+
+          data.results.forEach((item, i) => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.style.animationDelay = `${i * 60}ms`;
+            card.innerHTML = `
+              <div class="mannequin-wrap">
+                <div class="mannequin-container">
+                  ${mannequinSVG()}
+                  <img class="clothing-on-mannequin"
+                       src="data:image/png;base64,${item.image}"
+                       alt="Clothing item" />
+                </div>
+              </div>
+              <div class="card-info">
+                <span class="card-label">Match</span>
+                <span class="card-score">${item.score}%</span>
+              </div>
+              <div class="score-bar-wrap">
+                <div class="score-bar-bg">
+                  <div class="score-bar-fill" style="width: ${
+                    item.score
+                  }%"></div>
+                </div>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+        } catch (e) {
+          grid.innerHTML =
+            "<p style='color:#a08878;padding:20px'>Something went wrong. Please try again.</p>";
+        } finally {
+          loading.style.display = "none";
+          searchBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
