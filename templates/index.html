@@ -8,7 +8,9 @@
       rel="stylesheet"
     />
     <style>
-      * {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
@@ -20,9 +22,6 @@
         --accent: #c8a96e;
         --muted: #9e9185;
         --card-bg: #faf7f3;
-        --mannequin-body: #d4c4b0;
-        --mannequin-shadow: #b8a898;
-        --mannequin-dark: #a08878;
       }
 
       body {
@@ -32,26 +31,22 @@
         min-height: 100vh;
       }
 
+      /* ── Header ── */
       header {
         background: var(--dark);
         color: white;
         padding: 28px 48px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
       }
-
       header h1 {
         font-family: "Cormorant Garamond", serif;
         font-size: 2rem;
         font-weight: 600;
         letter-spacing: 0.04em;
       }
-
       header p {
         color: var(--accent);
-        font-size: 0.8rem;
-        letter-spacing: 0.12em;
+        font-size: 0.78rem;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
         margin-top: 4px;
         font-weight: 300;
@@ -63,7 +58,7 @@
         padding: 0 24px;
       }
 
-      /* ── Upload Zone ── */
+      /* ── Upload ── */
       .upload-box {
         background: white;
         border: 1.5px dashed #c8b9a8;
@@ -82,6 +77,7 @@
       }
       .upload-box label {
         cursor: pointer;
+        display: block;
       }
       .upload-box .icon {
         font-size: 2.6rem;
@@ -90,7 +86,6 @@
         font-family: "Cormorant Garamond", serif;
         font-size: 1.25rem;
         margin-top: 14px;
-        color: var(--dark);
       }
       .upload-box .label-sub {
         font-size: 0.78rem;
@@ -126,13 +121,11 @@
         letter-spacing: 0.1em;
         text-transform: uppercase;
         cursor: pointer;
-        transition: background 0.2s, transform 0.1s;
+        transition: background 0.2s;
+        display: inline-block;
       }
       #search-btn:hover {
         background: #2e2a24;
-      }
-      #search-btn:active {
-        transform: scale(0.98);
       }
       #search-btn:disabled {
         opacity: 0.5;
@@ -149,36 +142,16 @@
         letter-spacing: 0.1em;
         text-transform: uppercase;
       }
-      .dot-pulse::after {
-        content: "";
-        animation: dots 1.4s infinite;
-      }
-      @keyframes dots {
-        0% {
-          content: ".";
-        }
-        33% {
-          content: "..";
-        }
-        66% {
-          content: "...";
-        }
-        100% {
-          content: ".";
-        }
-      }
 
-      /* ── Results ── */
+      /* ── Results Grid ── */
       #results {
         margin-top: 48px;
       }
-
       #results-title {
         font-family: "Cormorant Garamond", serif;
         font-size: 1.4rem;
         font-weight: 600;
         margin-bottom: 28px;
-        letter-spacing: 0.03em;
         display: none;
       }
       #results-title span {
@@ -191,66 +164,34 @@
         gap: 18px;
       }
 
-      /* ── Mannequin Card ── */
+      /* ── Card ── */
       .card {
         background: var(--card-bg);
         border-radius: 18px;
         overflow: hidden;
         box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-        transition: transform 0.22s, box-shadow 0.22s;
         border: 1px solid rgba(200, 185, 168, 0.3);
+        transition: transform 0.22s, box-shadow 0.22s;
       }
       .card:hover {
         transform: translateY(-4px);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       }
 
-      .mannequin-wrap {
+      .card-img-wrap {
         background: linear-gradient(160deg, #f0e8dc 0%, #e8ddd2 100%);
-        padding: 20px 12px 8px;
-        position: relative;
-        overflow: hidden;
+        padding: 16px;
+        text-align: center;
       }
-      /* subtle background texture */
-      .mannequin-wrap::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(
-          circle at 50% 30%,
-          rgba(255, 255, 255, 0.35) 0%,
-          transparent 70%
-        );
-        pointer-events: none;
-      }
-
-      .mannequin-container {
-        position: relative;
-        width: 120px;
-        margin: 0 auto;
-      }
-
-      .mannequin-svg {
+      .card-img-wrap img {
         width: 100%;
-        display: block;
-        filter: drop-shadow(2px 4px 6px rgba(100, 80, 60, 0.18));
-      }
-
-      /* The clothing image sits exactly over the torso/hip area */
-      .clothing-on-mannequin {
-        position: absolute;
-        top: 18%; /* start at upper torso */
-        left: 5%;
-        width: 90%;
-        height: 55%; /* covers torso + hips */
+        height: 200px;
         object-fit: contain;
-        mix-blend-mode: multiply; /* white bg disappears, fabric shows through */
-        opacity: 0.88;
-        image-rendering: pixelated; /* keeps Fashion MNIST crisp instead of blurry */
+        border-radius: 10px;
       }
 
       .card-info {
-        padding: 12px 14px;
+        padding: 10px 14px 4px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -268,9 +209,8 @@
         color: var(--accent);
       }
 
-      /* ── Score bar ── */
       .score-bar-wrap {
-        padding: 0 14px 12px;
+        padding: 4px 14px 10px;
       }
       .score-bar-bg {
         height: 3px;
@@ -282,7 +222,108 @@
         height: 100%;
         background: linear-gradient(90deg, var(--accent), #e8c080);
         border-radius: 99px;
-        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* ── Try-On Button ── */
+      .tryon-btn {
+        display: block;
+        width: calc(100% - 28px);
+        margin: 0 14px 14px;
+        padding: 9px;
+        background: var(--dark);
+        color: var(--accent);
+        border: none;
+        border-radius: 10px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .tryon-btn:hover {
+        background: #2e2a24;
+      }
+      .tryon-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .tryon-btn.loading {
+        opacity: 0.7;
+      }
+
+      /* ── Modal ── */
+      #modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.72);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(6px);
+      }
+      #modal-overlay.open {
+        display: flex;
+      }
+
+      #modal {
+        background: var(--card-bg);
+        border-radius: 24px;
+        padding: 40px;
+        max-width: 480px;
+        width: 90%;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+      }
+      #modal h2 {
+        font-family: "Cormorant Garamond", serif;
+        font-size: 1.6rem;
+        margin-bottom: 6px;
+      }
+      #modal .subtitle {
+        font-size: 0.78rem;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+      #modal-img {
+        width: 100%;
+        max-height: 420px;
+        object-fit: contain;
+        border-radius: 14px;
+        border: 1.5px solid #e0d5c8;
+        display: none;
+      }
+      #modal-loading {
+        padding: 60px 20px;
+        color: var(--muted);
+        font-size: 0.85rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      #modal-error {
+        padding: 20px;
+        color: #c0624a;
+        font-size: 0.85rem;
+        display: none;
+      }
+      #modal-close {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        background: none;
+        border: none;
+        font-size: 1.4rem;
+        cursor: pointer;
+        color: var(--muted);
+        line-height: 1;
+      }
+      #modal-close:hover {
+        color: var(--dark);
       }
 
       @media (max-width: 800px) {
@@ -302,10 +343,8 @@
   </head>
   <body>
     <header>
-      <div>
-        <h1>✦ Atelier Finder</h1>
-        <p>Visual similarity search · Fashion dataset</p>
-      </div>
+      <h1>✦ Atelier Finder</h1>
+      <p>Visual similarity search · Virtual try-on</p>
     </header>
 
     <div class="container">
@@ -324,9 +363,7 @@
         <button id="search-btn">Find Similar Pieces</button>
       </div>
 
-      <div id="loading">
-        <span class="dot-pulse">Analysing &amp; matching</span>
-      </div>
+      <div id="loading">⏳ Analysing &amp; matching...</div>
 
       <div id="results">
         <div id="results-title"></div>
@@ -334,78 +371,49 @@
       </div>
     </div>
 
+    <!-- Try-On Modal -->
+    <div id="modal-overlay">
+      <div id="modal">
+        <button id="modal-close">✕</button>
+        <h2>Virtual Try-On</h2>
+        <p class="subtitle">Powered by IDM-VTON · Free</p>
+        <div id="modal-loading">
+          ⏳ Generating try-on...<br /><small
+            style="margin-top: 8px; display: block; opacity: 0.7"
+            >This takes ~30 seconds</small
+          >
+        </div>
+        <div id="modal-error"></div>
+        <img id="modal-img" src="" alt="Try-On Result" />
+      </div>
+    </div>
+
     <script>
       const fileInput = document.getElementById("file-input");
       const preview = document.getElementById("preview");
-      const previewSection = document.getElementById("preview-section");
+      const previewSec = document.getElementById("preview-section");
       const searchBtn = document.getElementById("search-btn");
       const loading = document.getElementById("loading");
       const grid = document.getElementById("results-grid");
       const resultsTitle = document.getElementById("results-title");
 
-      // Mannequin SVG — dress-form shape
-      function mannequinSVG() {
-        return `<svg class="mannequin-svg" viewBox="0 0 140 290" xmlns="http://www.w3.org/2000/svg">
-          <!-- hanger hook -->
-          <path d="M70 4 Q70 0 76 0 Q84 0 84 8 Q84 14 70 18" stroke="#a08878" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <!-- hanger bar -->
-          <line x1="20" y1="32" x2="120" y2="32" stroke="#b09080" stroke-width="3" stroke-linecap="round"/>
-          <!-- neck strap left -->
-          <line x1="20" y1="32" x2="44" y2="52" stroke="#b09080" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- neck strap right -->
-          <line x1="120" y1="32" x2="96" y2="52" stroke="#b09080" stroke-width="2.5" stroke-linecap="round"/>
-          <!-- torso -->
-          <path d="
-            M44 52
-            Q30 56 26 80
-            Q22 108 26 132
-            Q34 148 70 150
-            Q106 148 114 132
-            Q118 108 114 80
-            Q110 56 96 52
-            Q84 46 70 46
-            Q56 46 44 52Z
-          " fill="var(--mannequin-body)"/>
-          <!-- chest highlight -->
-          <ellipse cx="70" cy="82" rx="22" ry="14" fill="rgba(255,255,255,0.12)"/>
-          <!-- waist -->
-          <path d="
-            M26 132
-            Q22 155 24 178
-            Q38 192 70 193
-            Q102 192 116 178
-            Q118 155 114 132
-            Q106 148 70 150
-            Q34 148 26 132Z
-          " fill="var(--mannequin-shadow)"/>
-          <!-- hip flare -->
-          <path d="
-            M24 178
-            Q18 198 20 215
-            Q36 228 70 229
-            Q104 228 120 215
-            Q122 198 116 178
-            Q102 192 70 193
-            Q38 192 24 178Z
-          " fill="var(--mannequin-dark)"/>
-          <!-- left leg -->
-          <path d="M20 215 Q14 252 16 283 L44 283 L50 215Z" fill="var(--mannequin-dark)" rx="4"/>
-          <!-- right leg -->
-          <path d="M120 215 Q126 252 124 283 L96 283 L90 215Z" fill="var(--mannequin-dark)"/>
-          <!-- base platform -->
-          <rect x="8" y="281" width="124" height="7" rx="3.5" fill="#8a7060"/>
-        </svg>`;
-      }
+      const modalOverlay = document.getElementById("modal-overlay");
+      const modalClose = document.getElementById("modal-close");
+      const modalLoading = document.getElementById("modal-loading");
+      const modalError = document.getElementById("modal-error");
+      const modalImg = document.getElementById("modal-img");
 
+      // ── Upload preview ──
       fileInput.addEventListener("change", () => {
         const file = fileInput.files[0];
         if (!file) return;
         preview.src = URL.createObjectURL(file);
-        previewSection.style.display = "block";
+        previewSec.style.display = "block";
         grid.innerHTML = "";
         resultsTitle.style.display = "none";
       });
 
+      // ── Recommend ──
       searchBtn.addEventListener("click", async () => {
         const file = fileInput.files[0];
         if (!file) return;
@@ -431,29 +439,31 @@
           data.results.forEach((item, i) => {
             const card = document.createElement("div");
             card.className = "card";
-            card.style.animationDelay = `${i * 60}ms`;
             card.innerHTML = `
-              <div class="mannequin-wrap">
-                <div class="mannequin-container">
-                  ${mannequinSVG()}
-                  <img class="clothing-on-mannequin"
-                       src="data:image/png;base64,${item.image}"
-                       alt="Clothing item" />
-                </div>
-              </div>
-              <div class="card-info">
-                <span class="card-label">Match</span>
-                <span class="card-score">${item.score}%</span>
-              </div>
-              <div class="score-bar-wrap">
-                <div class="score-bar-bg">
-                  <div class="score-bar-fill" style="width: ${
-                    item.score
-                  }%"></div>
-                </div>
-              </div>
-            `;
+          <div class="card-img-wrap">
+            <img src="data:image/png;base64,${item.image}" alt="Clothing item"/>
+          </div>
+          <div class="card-info">
+            <span class="card-label">Match</span>
+            <span class="card-score">${item.score}%</span>
+          </div>
+          <div class="score-bar-wrap">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill" style="width:${item.score}%"></div>
+            </div>
+          </div>
+          <button class="tryon-btn" data-path="${item.path}">
+            👗 Try On
+          </button>
+        `;
             grid.appendChild(card);
+          });
+
+          // Attach try-on listeners
+          document.querySelectorAll(".tryon-btn").forEach((btn) => {
+            btn.addEventListener("click", () =>
+              openTryOn(btn.dataset.path, btn)
+            );
           });
         } catch (e) {
           grid.innerHTML =
@@ -462,6 +472,50 @@
           loading.style.display = "none";
           searchBtn.disabled = false;
         }
+      });
+
+      // ── Try-On ──
+      async function openTryOn(clothPath, btn) {
+        // Open modal in loading state
+        modalOverlay.classList.add("open");
+        modalLoading.style.display = "block";
+        modalImg.style.display = "none";
+        modalError.style.display = "none";
+        modalError.textContent = "";
+
+        btn.disabled = true;
+        btn.textContent = "⏳ Generating...";
+        btn.classList.add("loading");
+
+        const formData = new FormData();
+        formData.append("cloth_path", clothPath);
+
+        try {
+          const res = await fetch("/tryon", { method: "POST", body: formData });
+          const data = await res.json();
+
+          if (data.error) throw new Error(data.error);
+
+          modalImg.src = `data:image/png;base64,${data.image}`;
+          modalImg.style.display = "block";
+          modalLoading.style.display = "none";
+        } catch (e) {
+          modalLoading.style.display = "none";
+          modalError.style.display = "block";
+          modalError.textContent = `❌ ${e.message}`;
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "👗 Try On";
+          btn.classList.remove("loading");
+        }
+      }
+
+      // ── Close Modal ──
+      modalClose.addEventListener("click", () =>
+        modalOverlay.classList.remove("open")
+      );
+      modalOverlay.addEventListener("click", (e) => {
+        if (e.target === modalOverlay) modalOverlay.classList.remove("open");
       });
     </script>
   </body>
